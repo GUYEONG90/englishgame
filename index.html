@@ -3,139 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>천재(함) 영어 게임 랜드</title>
-    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>천재(함) 영어 활동 모음 - STAGE SELECT</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/neodgm/neodgm-web-font@1.530/neodgm/style.css">
     <style>
         body {
-            font-family: 'Nanum Gothic', sans-serif;
-            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            font-family: 'NeoDunggeunmo', sans-serif;
+            background-color: #111111;
+            color: #ffffff;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
         header {
-            width: 100%;
-            padding: 60px 0;
+            margin-top: 40px;
             text-align: center;
-            background-color: #ffffff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 50px;
+            margin-bottom: 30px;
         }
 
         h1 {
-            font-family: 'Jua', sans-serif;
-            font-size: 64px;
-            color: #d63031; /* 활기찬 레드 */
+            font-size: 55px;
+            color: #39ff14; /* 네온 그린 */
+            text-shadow: 3px 3px 0px #ff0055, -2px -2px 0px #00ffff;
             margin: 0;
-            text-shadow: 2px 2px 0px #ffeaa7;
+            letter-spacing: 2px;
         }
 
         .subtitle {
-            font-size: 24px;
-            color: #636e72;
+            font-size: 22px;
+            color: #ffff00;
             margin-top: 10px;
+            letter-spacing: 1px;
         }
 
-        .container {
-            max-width: 1000px;
-            width: 90%;
+        /* 단원 구분을 위한 스테이지 구역(Zone) 설정 */
+        .stage-zone {
+            width: 85%;
+            max-width: 900px;
+            background-color: #1a1a1a;
+            border: 3px dashed #555555;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 35px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        /* 각 구역의 네온 컬러 테두리 포인트 */
+        .zone-l5 { border-color: #00ffff; box-shadow: 0 0 10px rgba(0, 255, 255, 0.2); }
+        .zone-l6 { border-color: #ff00ff; box-shadow: 0 0 10px rgba(255, 0, 255, 0.2); }
+        .zone-rv { border-color: #ff9f43; box-shadow: 0 0 10px rgba(255, 159, 67, 0.2); }
+
+        .zone-title {
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: inline-block;
+            padding: 5px 15px;
+            background-color: #000000;
+            border-radius: 5px;
+        }
+
+        .zone-l5 .zone-title { color: #00ffff; border: 2px solid #00ffff; }
+        .zone-l6 .zone-title { color: #ff00ff; border: 2px solid #ff00ff; }
+        .zone-rv .zone-title { color: #ff9f43; border: 2px solid #ff9f43; }
+
+        /* 게임 카드들이 배치되는 그리드 */
+        .game-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            padding-bottom: 100px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
         }
 
+        /* 1개만 있을 때 너무 넓어지지 않도록 예외 처리 */
+        .single-card {
+            grid-template-columns: minmax(250px, 380px);
+        }
+
+        /* 레트로 카드 디자인 */
         .game-card {
-            background: white;
-            border-radius: 25px;
-            padding: 40px 20px;
+            background-color: #000000;
+            border: 4px solid #ffffff;
+            padding: 25px 20px;
             text-align: center;
             text-decoration: none;
-            color: #2d3436;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 4px solid transparent;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            color: #ffffff;
+            transition: all 0.1s;
+            box-shadow: 5px 5px 0px #ffffff;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
 
-        .game-card:hover {
-            transform: translateY(-10px);
-            border-color: #fdcb6e;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        /* 마우스 오버 시 각 구역의 색상에 맞춰 하이라이트 */
+        .zone-l5 .game-card:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 9px 9px 0px #00ffff;
+            border-color: #00ffff;
+            color: #00ffff;
         }
 
-        .game-card i {
-            font-size: 60px;
-            margin-bottom: 20px;
-            color: #0984e3;
+        .zone-l6 .game-card:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 9px 9px 0px #ff00ff;
+            border-color: #ff00ff;
+            color: #ff00ff;
+        }
+
+        .zone-rv .game-card:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 9px 9px 0px #ff9f43;
+            border-color: #ff9f43;
+            color: #ff9f43;
+        }
+
+        .game-card:active {
+            transform: translate(5px, 5px);
+            box-shadow: 0px 0px 0px #ffffff;
+        }
+
+        .game-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
         }
 
         .game-card h2 {
-            font-family: 'Jua', sans-serif;
-            font-size: 28px;
-            margin: 10px 0;
+            font-size: 22px;
+            margin: 5px 0;
+            letter-spacing: 1px;
         }
 
         .game-card p {
-            color: #b2bec3;
-            font-size: 18px;
+            font-size: 15px;
+            color: #888888;
+            margin: 5px 0 0 0;
         }
 
-        /* 카드별 포인트 색상 */
-        .card-1 i { color: #e17055; }
-        .card-2 i { color: #00b894; }
-        .card-3 i { color: #6c5ce7; }
-        .card-4 i { color: #fd9644; }
+        .game-card:hover p {
+            color: #ffffff;
+        }
+
+        .insert-coin {
+            margin: 20px 0;
+            color: #ff0055;
+            font-size: 18px;
+            animation: blink 1s infinite step-end;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
 
         footer {
-            margin-top: auto;
             padding: 30px;
-            color: #b2bec3;
+            color: #555555;
+            font-size: 15px;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>천재(함) 영어 게임 랜드</h1>
-        <p class="subtitle">Welcome to English Game Land! 🎮</p>
+        <h1>천재(함) 영어 활동 모음</h1>
+        <p class="subtitle">SELECT YOUR STAGE</p>
     </header>
 
-    <div class="container">
-        <a href="direction_duel.html" class="game-card card-1">
-            <i class="fa-solid fa-map-location-dot"></i>
-            <h2>Direction Duel</h2>
-            <p>길 찾기 길잡이</p>
-        </a>
-
-        <a href="catch_suspect.html" class="game-card card-2">
-            <i class="fa-solid fa-user-secret"></i>
-            <h2>Catch Suspect</h2>
-            <p>범인을 잡아라!</p>
-        </a>
-
-        <a href="statement.html" class="game-card card-3">
-            <i class="fa-solid fa-comment-dots"></i>
-            <h2>Give a Statement</h2>
-            <p>문장 완성 퀴즈</p>
-        </a>
-
-        <a href="typing.html" class="game-card card-4">
-            <i class="fa-solid fa-keyboard"></i>
-            <h2>Typing Master</h2>
-            <p>타이핑의 달인</p>
-        </a>
+    <div class="stage-zone zone-l5">
+        <div class="zone-title">STAGE 1: Lesson 5. Where is ABC library?</div>
+        <div class="game-grid single-card">
+            <a href="direction_duel.html" class="game-card">
+                <div class="game-icon">📍</div>
+                <h2>DIRECTION DUEL</h2>
+                <p>길 찾기 길잡이</p>
+            </a>
+        </div>
     </div>
 
+    <div class="stage-zone zone-l6">
+        <div class="zone-title">STAGE 2: Lesson 6. He has Blue eyes.</div>
+        <div class="game-grid">
+            <a href="catch_suspect.html" class="game-card">
+                <div class="game-icon">🕵️</div>
+                <h2>CATCH SUSPECT</h2>
+                <p>범인을 잡아라!</p>
+            </a>
+            <a href="statement.html" class="game-card">
+                <div class="game-icon">💬</div>
+                <h2>GIVE A STATEMENT</h2>
+                <p>문장 완성 퀴즈</p>
+            </a>
+        </div>
+    </div>
+
+    <div class="stage-zone zone-rv">
+        <div class="zone-title">BONUS STAGE: Lesson 1 ~ 6. Review</div>
+        <div class="game-grid single-card">
+            <a href="typing.html" class="game-card">
+                <div class="game-icon">⌨️</div>
+                <h2>TYPING MASTER</h2>
+                <p>타이핑의 달인</p>
+            </a>
+        </div>
+    </div>
+
+    <div class="insert-coin">INSERT COIN TO PLAY...</div>
+
     <footer>
-        &copy; 2024 Cheonjae English Game Land.
+        © 2026 [인디스쿨 여행핑]
     </footer>
 
 </body>
