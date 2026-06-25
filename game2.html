@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Catch the Suspect! · Lesson 6</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0e1530; --ink2:#161f44;
+    --paper:#f5eddb; --paper-line:#e2d6ba;
+    --tape:#f3c44b; --red:#e23b46; --blue:#2f6fed; --green:#27c08a;
+    --skin:#f2c89c; --shadow:rgba(0,0,0,.35);
+    --display:'Pretendard',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--display);
+    background:radial-gradient(1200px 800px at 50% -10%, #1d2a5e 0%, var(--ink) 55%, #080c1d 100%);
+    color:#fff; overflow:hidden; user-select:none;
+  }
+  .wrap{height:100%; display:flex; flex-direction:column;}
+  .hidden{display:none !important;}
+
+  /* ---------- INTRO ---------- */
+  #intro{height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px; position:relative; overflow:hidden;}
+  #intro::before{content:''; position:absolute; inset:-40%;
+    background:conic-gradient(from 0deg, transparent 0 70%, rgba(226,59,70,.22) 78%, transparent 86%, rgba(47,111,237,.22) 94%, transparent 100%);
+    animation:spin 6s linear infinite; pointer-events:none;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .badge{font-size:clamp(56px,12vw,96px); filter:drop-shadow(0 6px 14px rgba(0,0,0,.5)); animation:bob 2.4s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .case-tag{font-size:clamp(13px,2.6vw,16px); letter-spacing:.32em; color:var(--tape); font-weight:700; margin-bottom:10px;}
+  #intro h1{font-size:clamp(38px,8.5vw,76px); font-weight:900; line-height:.98; letter-spacing:-.01em; text-shadow:0 4px 0 #000a, 0 0 30px rgba(226,59,70,.35);}
+  #intro h1 .y{color:var(--tape);}
+  .sub{margin:14px 0 30px; color:#c3cbe6; font-size:clamp(15px,3.6vw,20px); max-width:560px;}
+  .sub b{color:#fff;}
+  .btn{font-family:var(--display); font-weight:800; cursor:pointer; border:none; border-radius:999px; transition:transform .12s, box-shadow .12s, filter .12s;}
+  .btn:active{transform:translateY(2px) scale(.98);}
+  .btn-start{font-size:clamp(18px,4.6vw,24px); padding:16px 44px; color:#1a1206; background:linear-gradient(180deg,#ffd968,var(--tape)); box-shadow:0 8px 0 #a97b14, 0 14px 26px rgba(0,0,0,.4);}
+  .btn-start:active{box-shadow:0 3px 0 #a97b14, 0 6px 14px rgba(0,0,0,.4);}
+  .intro-tip{margin-top:26px; font-size:13px; color:#8a93b8;}
+
+  /* ---------- HEADER ---------- */
+  header{display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(8,12,28,.6); border-bottom:1px solid rgba(255,255,255,.08); backdrop-filter:blur(6px); flex-wrap:wrap;}
+  .h-left{display:flex; align-items:center; gap:10px; flex:1; min-width:0;}
+  .stage-pill{font-weight:900; font-size:clamp(15px,3.4vw,19px); color:#fff; background:var(--red); padding:6px 14px; border-radius:10px; white-space:nowrap; box-shadow:0 3px 0 #9b232c;}
+  .progress{flex:1; height:10px; background:rgba(255,255,255,.12); border-radius:999px; overflow:hidden; min-width:80px;}
+  .progress > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--tape),#ffe08a); transition:width .4s;}
+  .score{font-weight:800; font-size:14px; color:var(--tape); white-space:nowrap;}
+  .hbtns{display:flex; gap:8px;}
+  .icon-btn{font-family:var(--display); font-weight:800; font-size:14px; cursor:pointer; color:#0e1530; padding:8px 14px; border-radius:10px; border:none; background:#ffd968; box-shadow:0 3px 0 #b78f23;}
+  .icon-btn.ghost{background:rgba(255,255,255,.12); color:#fff; box-shadow:0 3px 0 rgba(0,0,0,.3);}
+  .icon-btn:active{transform:translateY(2px); box-shadow:none;}
+
+  /* ---------- SCENE ---------- */
+  #scene{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:14px; overflow-y:auto;}
+  #scene.centered{justify-content:center;}
+  .speaker-zone{width:100%; max-width:680px; display:flex; flex-direction:column; align-items:center; gap:8px;}
+  .speaker-tag{font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--tape);}
+  .talker{font-size:clamp(52px,13vw,92px); line-height:1; filter:drop-shadow(0 8px 14px rgba(0,0,0,.5)); animation:bob 2.4s ease-in-out infinite;}
+  .bubble{position:relative; background:var(--paper); color:#1d2235; border-radius:18px; padding:18px 22px; margin-top:8px;
+    font-size:clamp(20px,5vw,30px); font-weight:800; text-align:center; min-height:64px; line-height:1.3;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 10px 24px rgba(0,0,0,.35); max-width:620px;}
+  .bubble::before{content:''; position:absolute; top:-12px; left:50%; transform:translateX(-50%); border-width:0 13px 13px; border-style:solid; border-color:transparent transparent var(--paper);}
+  .bubble.pop{animation:pop .25s ease-out;}
+  @keyframes pop{0%{transform:scale(.96)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+  /* ---------- NOTEPAD (clues stack) ---------- */
+  .notepad{width:100%; max-width:560px; margin-top:22px; background:var(--paper); color:#1d2235; border-radius:14px; padding:16px 18px; box-shadow:0 10px 24px rgba(0,0,0,.35); position:relative;}
+  .notepad::before{content:'EVIDENCE'; position:absolute; top:-12px; left:50%; transform:translateX(-50%) rotate(-2deg); background:var(--tape); color:#3a2c05; font-size:11px; font-weight:900; letter-spacing:.18em; padding:3px 16px; border-radius:4px; box-shadow:0 3px 8px rgba(0,0,0,.3);}
+  .notepad-head{display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; cursor:pointer; font-family:var(--display); font-size:13px; font-weight:900; letter-spacing:.1em; color:#9a7a1e; background:none; border:none; padding:0; text-align:left;}
+  .np-toggle{display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; letter-spacing:0; color:#8a6510; background:rgba(243,196,75,.3); padding:5px 12px; border-radius:999px; white-space:nowrap;}
+  .np-toggle .chev{transition:transform .25s; display:inline-block;}
+  .notepad.collapsed .np-toggle .chev{transform:rotate(-90deg);}
+  #clueList{list-style:none; display:flex; flex-direction:column; gap:9px; overflow:hidden; transition:max-height .35s ease, opacity .25s, margin-top .25s; max-height:600px; opacity:1; margin-top:12px;}
+  .notepad.collapsed #clueList{max-height:0; opacity:0; margin-top:0;}
+  #clueList li{display:flex; align-items:center; gap:12px; font-size:clamp(17px,4vw,22px); font-weight:700; border-bottom:1px dashed var(--paper-line); padding-bottom:9px; animation:clueIn .4s ease-out;}
+  #clueList li:last-child{border-bottom:none; padding-bottom:0;}
+  #clueList li .ic{font-size:1.25em; width:1.4em; text-align:center; flex:none;}
+  @keyframes clueIn{from{opacity:0; transform:translateX(-16px)} to{opacity:1; transform:translateX(0)}}
+  .notepad.pulse{animation:nPulse .6s;}
+  @keyframes nPulse{0%,100%{box-shadow:0 10px 24px rgba(0,0,0,.35)}50%{box-shadow:0 0 0 5px var(--tape),0 10px 24px rgba(0,0,0,.35)}}
+
+  .prompt{margin:18px 0 6px; font-size:clamp(15px,3.6vw,19px); font-weight:800; color:#dfe5ff; text-align:center;}
+
+  /* ---------- MUGSHOTS ---------- */
+  .board{width:100%; max-width:760px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:4px; padding-bottom:10px;}
+  @media (max-width:520px){ .board{grid-template-columns:repeat(2,1fr);} }
+  .mug{position:relative; background:linear-gradient(180deg,#23305f,#18224a); border:3px solid rgba(255,255,255,.14); border-radius:16px; padding:10px 10px 8px; cursor:pointer; transition:transform .15s, box-shadow .15s, border-color .15s; overflow:hidden;}
+  .mug::before{content:''; position:absolute; left:6px; top:8px; bottom:8px; width:8px; border-radius:3px; background:repeating-linear-gradient(180deg, rgba(255,255,255,.18) 0 2px, transparent 2px 14px); opacity:.5;}
+  .mug:hover{transform:translateY(-4px) scale(1.03); box-shadow:0 12px 26px rgba(0,0,0,.45); border-color:var(--tape);}
+  .mug svg{width:100%; height:auto; display:block; border-radius:10px; background:radial-gradient(circle at 50% 38%, #cdd6f0, #9aa6c9);}
+  .mug .num{position:absolute; top:6px; right:9px; font-size:12px; font-weight:900; color:#fff; background:rgba(0,0,0,.4); border-radius:6px; padding:1px 7px;}
+  .mug.shake{animation:shake .45s;}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+  .mug.wrong{border-color:var(--red);}
+  .mug.dim{opacity:.32; filter:grayscale(.6);}
+  .mug.correct{border-color:var(--green); box-shadow:0 0 0 4px rgba(39,192,138,.4), 0 12px 26px rgba(0,0,0,.5);}
+  .mug .check{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:60px; opacity:0;}
+  .mug.correct .check{opacity:1; animation:popBig .5s ease-out;}
+  @keyframes popBig{0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+
+  /* ---------- RESULT OVERLAY ---------- */
+  #overlay{position:fixed; inset:0; z-index:50; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(6,9,22,.82); backdrop-filter:blur(3px); padding:20px; text-align:center;}
+  #overlay.gameover{background:radial-gradient(ellipse at center, rgba(122,22,30,.88), rgba(6,9,22,.94));}
+  .result-big{font-size:clamp(44px,11vw,86px); font-weight:900; color:var(--green); text-shadow:0 4px 0 #000a, 0 0 30px rgba(39,192,138,.5); animation:gotcha .55s ease-out;}
+  @keyframes gotcha{0%{transform:scale(0) rotate(-8deg);opacity:0}55%{transform:scale(1.25) rotate(3deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+  .arrest{position:relative; width:min(340px,80vw); height:130px; margin:18px 0 4px; overflow:hidden;}
+  .arrest .perp{position:absolute; left:12%; bottom:6px; width:84px;}
+  .arrest .car{position:absolute; left:56%; bottom:0; font-size:54px;}
+  .arrest.go .perp{animation:drag 1.4s ease-in .15s forwards;}
+  .arrest.go .car{animation:carIn 1.4s ease-in forwards;}
+  @keyframes drag{to{left:120%; transform:rotate(14deg); opacity:0;}}
+  @keyframes carIn{0%{left:120%;}60%{left:54%;}100%{left:54%;}}
+  .result-sub{font-size:clamp(15px,3.6vw,19px); color:#cfd6f2; font-weight:700; margin-bottom:18px;}
+  .result-big.fail{color:#ff7a59; text-shadow:0 4px 0 #000a, 0 0 30px rgba(255,122,89,.5);}
+  .chances{display:flex; align-items:center; justify-content:center; gap:9px; margin:8px 0 2px;}
+  .chances .ch-label{font-size:13px; font-weight:800; letter-spacing:.04em; color:#cfd6f2;}
+  .chances .dot{width:16px; height:16px; border-radius:50%; background:var(--blue); box-shadow:0 0 0 3px rgba(47,111,237,.25); transition:.2s;}
+  .chances .dot.lost{background:transparent; box-shadow:none; position:relative;}
+  .chances .dot.lost::after{content:'✕'; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); color:var(--red); font-size:18px; font-weight:900; line-height:1;}
+  .arrest .laugh{position:absolute; left:50%; top:-10px; transform:translateX(-50%); font-size:40px;}
+  .arrest.escape .laugh{animation:bob 1s ease-in-out 3;}
+  .arrest .dust{position:absolute; bottom:8px; left:34%; font-size:40px; opacity:0;}
+  .arrest.escape.go .perp{left:42%; animation:taunt .55s ease-in-out 1, dashOff 1s ease-in .55s forwards;}
+  .arrest.escape.go .dust{animation:dustPuff 1s ease-in .55s forwards;}
+  @keyframes taunt{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg) scale(1.06)}75%{transform:rotate(9deg) scale(1.06)}}
+  @keyframes dashOff{to{left:120%; opacity:0;}}
+  @keyframes dustPuff{0%{opacity:.9; left:34%}100%{opacity:0; left:72%}}
+  .btn-next{font-size:clamp(17px,4.4vw,22px); padding:14px 40px; color:#fff; background:linear-gradient(180deg,#4d86ff,var(--blue)); box-shadow:0 7px 0 #1f4cb0, 0 12px 24px rgba(0,0,0,.4);}
+  .btn-next:active{box-shadow:0 2px 0 #1f4cb0;}
+
+  /* ---------- FINAL ---------- */
+  .final-emoji{font-size:clamp(60px,15vw,110px); animation:bob 2s ease-in-out infinite;}
+  .stars{font-size:clamp(30px,8vw,52px); letter-spacing:6px; margin:6px 0;}
+  .case-stars{font-size:clamp(34px,9vw,54px); letter-spacing:6px; margin:2px 0 8px; animation:pop .4s ease-out;}
+  .case-stars .star-empty{opacity:.32;}
+  .final-score{font-size:clamp(40px,10vw,72px); font-weight:900; color:var(--tape);}
+  .final-score small{font-size:.4em; color:#c3cbe6; font-weight:700;}
+  .stamp{font-family:var(--display); font-weight:900; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--red); border:5px solid var(--red); border-radius:12px; padding:7px 22px;
+    font-size:clamp(22px,6.5vw,40px); transform:rotate(-9deg); opacity:.94; margin-bottom:10px;
+    box-shadow:0 0 0 2px rgba(226,59,70,.22) inset; animation:stamp .5s cubic-bezier(.2,1.5,.5,1) both;}
+  @keyframes stamp{0%{transform:rotate(-9deg) scale(2.6); opacity:0}55%{opacity:1}100%{transform:rotate(-9deg) scale(1); opacity:.94}}
+  .confetti{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:60;}
+  .confetti i{position:absolute; top:-16px; width:10px; height:14px; opacity:.92; animation:fall linear forwards;}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg);}}
+
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; animation-iteration-count:1 !important;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- INTRO -->
+  <section id="intro">
+    <div class="badge">🚨</div>
+    <div class="case-tag">CASE FILE · LESSON 6</div>
+    <h1>CATCH THE <span class="y">SUSPECT!</span></h1>
+    <p class="sub">A witness saw the suspect. Listen to the clues, then tap the right mugshot.<br>
+      <b>"He has blue eyes. She is wearing a red shirt."</b></p>
+    <button class="btn btn-start" onclick="startGame()">🔍 Start the case</button>
+    <p class="intro-tip">소리를 켜면 목격자의 영어 진술을 들을 수 있어요 · 10 cases</p>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="wrap hidden">
+    <header>
+      <div class="h-left">
+        <span class="stage-pill" id="stagePill">CASE 1/10</span>
+        <div class="progress"><i id="progBar"></i></div>
+        <span class="score" id="scoreTxt">⭐ 0</span>
+      </div>
+      <div class="hbtns">
+        <button class="icon-btn ghost" id="soundBtn" onclick="toggleSound()">🔊</button>
+      </div>
+    </header>
+
+    <div id="scene" class="centered">
+      <div class="speaker-zone">
+        <div class="speaker-tag" id="speaker">Witness</div>
+        <div class="talker" id="talker">🧑</div>
+        <div class="bubble pop" id="bubble">…</div>
+      </div>
+      <div class="notepad hidden collapsed" id="notepad">
+        <button class="notepad-head" id="notepadHead" onclick="toggleNotepad()">
+          <span>📋 CLUES</span>
+          <span class="np-toggle">🔍 Need a hint? <span class="chev">▾</span></span>
+        </button>
+        <ul id="clueList"></ul>
+      </div>
+      <div class="prompt hidden" id="prompt">🕵️ Who is the suspect? Tap the mugshot!</div>
+      <div class="chances hidden" id="chances"></div>
+      <div class="board hidden" id="board"></div>
+    </div>
+  </section>
+
+  <!-- RESULT / FINAL OVERLAY -->
+  <section id="overlay" class="hidden"></section>
+
+</div>
+
+<script>
+/* ===== data ===== */
+const eyeColors  = ['blue','brown','green'];
+const hairColors = ['black','blonde','brown','red'];
+const shirtColors= ['red','blue','green','yellow','white','black'];
+const CLUE_ICONS = ['👁️','💇','👓','👕'];   // eyes, hair, glasses, shirt
+const POLICE_EMOJI  = g => g==='female' ? '👮‍♀️' : '👮‍♂️';
+const DET_EMOJI     = g => g==='female' ? '🕵️‍♀️' : '🕵️‍♂️';
+const WITNESS_EMOJI = g => g==='female' ? '👩' : '👨';
+
+const EYE_HEX  = {blue:'#2f6fed', brown:'#7c4a1e', green:'#1f9d52'};
+const HAIR_HEX = {black:'#2a2a31', blonde:'#e3b23c', brown:'#5b3a1e', red:'#b8431f'};
+const SHIRT_HEX= {red:'#e23b46', blue:'#2f6fed', green:'#27a35f', yellow:'#f4c430', white:'#f4f4f6', black:'#23242c'};
+const SKIN='#f2c89c';
+
+let stages=[], cur=0, score=0, wrongThisStage=0, locked=false, escapedCount=0;
+let soundOn=true, voices=[], dialogueToken=0;
+
+/* ===== utils ===== */
+const rand = a => a[Math.floor(Math.random()*a.length)];
+const wait = ms => new Promise(r=>setTimeout(r,ms));
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const describedEqual = (a,b)=> a.eyes===b.eyes && a.hair===b.hair && a.glasses===b.glasses && a.shirt===b.shirt;
+const makeRand = g => ({eyes:rand(eyeColors), hair:rand(hairColors), shirt:rand(shirtColors), glasses:Math.random()<.5, gender:g});
+
+function nearMiss(ans){
+  const s={...ans};
+  const k=rand(['eyes','hair','shirt','glasses']);
+  if(k==='eyes')      s.eyes  = rand(eyeColors.filter(c=>c!==ans.eyes));
+  else if(k==='hair') s.hair  = rand(hairColors.filter(c=>c!==ans.hair));
+  else if(k==='shirt')s.shirt = rand(shirtColors.filter(c=>c!==ans.shirt));
+  else                s.glasses = !ans.glasses;
+  return s;
+}
+
+/* ===== stage builder: answer is ALWAYS the unique full match ===== */
+function buildStage(i){
+  const gender = i%2===0 ? 'male' : 'female';          // suspect gender (he/she)
+  const witnessGender = i%2===0 ? 'female' : 'male';   // witness voice + icon
+  const policeGender  = i%2===0 ? 'male' : 'female';   // officer on the case — alternates
+  const P    = gender==='male' ? 'He'  : 'She';
+  const obj  = gender==='male' ? 'him' : 'her';
+  const subj = gender==='male' ? 'he'  : 'she';
+  const answer = makeRand(gender);
+  const list=[answer];
+  let guard=0;
+  while(list.length<6 && guard<300){
+    guard++;
+    const cand = list.length<=3 ? nearMiss(answer) : makeRand(gender);
+    if(describedEqual(cand,answer)) continue;
+    if(list.some(s=>describedEqual(s,cand))) continue;
+    list.push(cand);
+  }
+  while(list.length<6){
+    const cand=makeRand(gender);
+    if(describedEqual(cand,answer)) continue;
+    if(list.some(s=>describedEqual(s,cand))) continue;
+    list.push(cand);
+  }
+  shuffle(list);
+  const answerIdx = list.indexOf(answer);
+  const description=[
+    `${P} has ${answer.eyes} eyes.`,
+    `${P} has ${answer.hair} hair.`,
+    answer.glasses ? `${P} is wearing glasses.` : `${P} is not wearing glasses.`,
+    `${P} is wearing a ${answer.shirt} shirt.`
+  ];
+  return {gender,witnessGender,policeGender,P,obj,subj,suspects:list,answerIdx,description};
+}
+function generateStages(){ stages=[]; for(let i=0;i<10;i++) stages.push(buildStage(i)); }
+
+/* ===== SVG face ===== */
+function faceSVG(s){
+  const eye=EYE_HEX[s.eyes], hair=HAIR_HEX[s.hair], shirt=SHIRT_HEX[s.shirt];
+  const backHair = s.gender==='female'
+    ? `<path d="M19 60 Q14 22 50 16 Q86 22 81 60 L81 82 Q81 60 70 56 L30 56 Q19 60 19 82 Z" fill="${hair}"/>` : '';
+  const topHair = s.gender==='female'
+    ? `<path d="M23 47 Q21 17 50 15 Q79 17 77 47 Q70 29 50 29 Q30 29 23 47 Z" fill="${hair}"/>`
+    : `<path d="M24 47 Q22 20 50 18 Q78 20 76 47 Q66 31 50 31 Q34 31 24 47 Z" fill="${hair}"/>`;
+  const glasses = s.glasses ? `
+    <g fill="rgba(255,255,255,.18)" stroke="#23242c" stroke-width="2.6" stroke-linejoin="round">
+      <rect x="30" y="44" width="17" height="13" rx="4"/>
+      <rect x="53" y="44" width="17" height="13" rx="4"/>
+      <path d="M47 50 h6"/>
+      <path d="M30 47 l-7 -3 M70 47 l7 -3" fill="none"/>
+    </g>` : '';
+  return `
+  <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="mugshot">
+    <path d="M12 120 Q12 90 38 84 L62 84 Q88 90 88 120 Z" fill="${shirt}" stroke="rgba(0,0,0,.22)" stroke-width="1.5"/>
+    <path d="M40 86 L50 96 L60 86" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="1.5"/>
+    ${backHair}
+    <rect x="43" y="76" width="14" height="14" rx="6" fill="${SKIN}"/>
+    <ellipse cx="50" cy="52" rx="26" ry="29" fill="${SKIN}"/>
+    <ellipse cx="24" cy="54" rx="4.5" ry="6" fill="${SKIN}"/>
+    <ellipse cx="76" cy="54" rx="4.5" ry="6" fill="${SKIN}"/>
+    ${topHair}
+    <path d="M33 47 q6 -4 12 0 M55 47 q6 -4 12 0" stroke="#7a5230" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="39" cy="53" rx="7" ry="5.4" fill="#fff"/>
+    <ellipse cx="61" cy="53" rx="7" ry="5.4" fill="#fff"/>
+    <circle cx="39" cy="53" r="3.6" fill="${eye}"/>
+    <circle cx="61" cy="53" r="3.6" fill="${eye}"/>
+    <circle cx="39" cy="53" r="1.7" fill="#15151c"/>
+    <circle cx="61" cy="53" r="1.7" fill="#15151c"/>
+    <circle cx="40.6" cy="51.4" r=".9" fill="#fff"/>
+    <circle cx="62.6" cy="51.4" r=".9" fill="#fff"/>
+    <path d="M48 58 q2 4 4 0" stroke="#b98a5e" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M43 67 q7 5 14 0" stroke="#a4553f" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    ${glasses}
+  </svg>`;
+}
+
+/* ===== sound (Web Audio + Web Speech) ===== */
+let actx=null;
+function ac(){ if(!actx){ try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } return actx; }
+function siren(){
+  const c=ac(); if(!c||!soundOn) return;
+  const o=c.createOscillator(), g=c.createGain();
+  o.connect(g); g.connect(c.destination); g.gain.value=.12; o.type='sawtooth';
+  const t=c.currentTime;
+  for(let i=0;i<3;i++){ o.frequency.setValueAtTime(620,t+i*.5); o.frequency.linearRampToValueAtTime(940,t+i*.5+.25); o.frequency.linearRampToValueAtTime(620,t+i*.5+.5);}
+  o.start(t); o.stop(t+1.5);
+}
+function chime(){
+  const c=ac(); if(!c||!soundOn) return;
+  [659,880,1175].forEach((f,i)=>{ const o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination);
+    o.type='triangle'; o.frequency.value=f; const t=c.currentTime+i*.09;
+    g.gain.setValueAtTime(.001,t); g.gain.exponentialRampToValueAtTime(.25,t+.03); g.gain.exponentialRampToValueAtTime(.001,t+.32);
+    o.start(t); o.stop(t+.34); });
+}
+function buzz(){
+  const c=ac(); if(!c||!soundOn) return;
+  const o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination);
+  o.type='square'; o.frequency.value=150; const t=c.currentTime;
+  g.gain.setValueAtTime(.18,t); g.gain.exponentialRampToValueAtTime(.001,t+.18); o.start(t); o.stop(t+.2);
+}
+function womp(){
+  const c=ac(); if(!c||!soundOn) return;
+  const t0=c.currentTime;
+  const o=c.createOscillator(), g=c.createGain(); o.connect(g); g.connect(c.destination);
+  o.type='sawtooth';
+  o.frequency.setValueAtTime(392,t0);                  // descending "wah-wah" trombone
+  o.frequency.exponentialRampToValueAtTime(330,t0+.18);
+  o.frequency.setValueAtTime(300,t0+.24);
+  o.frequency.exponentialRampToValueAtTime(185,t0+.62);
+  g.gain.setValueAtTime(.0001,t0); g.gain.exponentialRampToValueAtTime(.2,t0+.03);
+  g.gain.setValueAtTime(.2,t0+.5); g.gain.exponentialRampToValueAtTime(.0001,t0+.78);
+  o.start(t0); o.stop(t0+.82);
+}
+function gameOverSound(){
+  const c=ac(); if(!c||!soundOn) return;
+  const t0=c.currentTime;
+  [{f:440,t:0},{f:392,t:.2},{f:330,t:.4},{f:262,t:.6},{f:196,t:.86,d:.7}].forEach(({f,t,d})=>{
+    const dur=d||.2;
+    ['square','triangle'].forEach((type,k)=>{
+      const o=c.createOscillator(),g=c.createGain(); o.connect(g); g.connect(c.destination);
+      o.type=type; o.frequency.value=f; const tt=t0+t; const v=k?.05:.16;
+      g.gain.setValueAtTime(.0001,tt); g.gain.exponentialRampToValueAtTime(v,tt+.02); g.gain.exponentialRampToValueAtTime(.0001,tt+dur);
+      o.start(tt); o.stop(tt+dur+.02);
+    });
+  });
+}
+/* board-ready cue: a quick "case open" two-tone + tick */
+function cue(){
+  const c=ac(); if(!c||!soundOn) return;
+  const t0=c.currentTime;
+  // tick
+  const n=c.createOscillator(), ng=c.createGain(); n.connect(ng); ng.connect(c.destination);
+  n.type='square'; n.frequency.value=240; ng.gain.setValueAtTime(.12,t0); ng.gain.exponentialRampToValueAtTime(.001,t0+.08); n.start(t0); n.stop(t0+.09);
+  // rising two notes
+  [{f:494,d:.0},{f:740,d:.12}].forEach(({f,d})=>{ const o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination);
+    o.type='sine'; o.frequency.value=f; const t=t0+.06+d;
+    g.gain.setValueAtTime(.001,t); g.gain.exponentialRampToValueAtTime(.3,t+.02); g.gain.exponentialRampToValueAtTime(.001,t+.28);
+    o.start(t); o.stop(t+.3); });
+}
+
+function handcuff(){
+  const c=ac(); if(!c||!soundOn) return;
+  const t0=c.currentTime;
+  const dur=0.4, buf=c.createBuffer(1, Math.floor(c.sampleRate*dur), c.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+  // ratchet ticks (metallic noise bursts) — the "철-컥-컥" of the cuffs closing
+  [0,0.055,0.11,0.165].forEach(tt=>{
+    const src=c.createBufferSource(); src.buffer=buf;
+    const bp=c.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=3200; bp.Q.value=7;
+    const g=c.createGain(); src.connect(bp); bp.connect(g); g.connect(c.destination);
+    const t=t0+tt;
+    g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.4,t+.004); g.gain.exponentialRampToValueAtTime(.0001,t+.05);
+    src.start(t); src.stop(t+.06);
+  });
+  // metallic clink + final heavy clunk
+  [{f:2500,t:0,d:.12,v:.16},{f:1750,t:.05,d:.12,v:.13},{f:480,t:.21,d:.28,v:.24}].forEach(({f,t,d,v})=>{
+    const o=c.createOscillator(),g=c.createGain(); o.connect(g); g.connect(c.destination);
+    o.type='triangle'; o.frequency.value=f; const tt=t0+t;
+    g.gain.setValueAtTime(.0001,tt); g.gain.exponentialRampToValueAtTime(v,tt+.005); g.gain.exponentialRampToValueAtTime(.0001,tt+d);
+    o.start(tt); o.stop(tt+d+.02);
+  });
+}
+function fanfare(){
+  const c=ac(); if(!c||!soundOn) return;
+  const t0=c.currentTime;
+  // stamp thunk
+  const th=c.createOscillator(), tg=c.createGain(); th.connect(tg); tg.connect(c.destination);
+  th.type='square'; th.frequency.value=130; tg.gain.setValueAtTime(.22,t0); tg.gain.exponentialRampToValueAtTime(.001,t0+.14); th.start(t0); th.stop(t0+.16);
+  // triumphant ascending melody
+  [{f:523,t:.12},{f:659,t:.26},{f:784,t:.40},{f:1047,t:.54,d:.5}].forEach(({f,t,d})=>{
+    const dur=d||.16;
+    ['triangle','square'].forEach((type,k)=>{
+      const o=c.createOscillator(),g=c.createGain(); o.connect(g); g.connect(c.destination);
+      o.type=type; o.frequency.value=f; const tt=t0+t; const v=k?.05:.16;
+      g.gain.setValueAtTime(.0001,tt); g.gain.exponentialRampToValueAtTime(v,tt+.02); g.gain.exponentialRampToValueAtTime(.0001,tt+dur);
+      o.start(tt); o.stop(tt+dur+.02);
+    });
+  });
+  // final chord shimmer
+  [1047,1319,1568].forEach(f=>{ const o=c.createOscillator(),g=c.createGain(); o.connect(g); g.connect(c.destination);
+    o.type='triangle'; o.frequency.value=f; const tt=t0+.54;
+    g.gain.setValueAtTime(.0001,tt); g.gain.exponentialRampToValueAtTime(.11,tt+.03); g.gain.exponentialRampToValueAtTime(.0001,tt+.7);
+    o.start(tt); o.stop(tt+.74); });
+}
+function launchConfetti(){
+  const colors=['#f3c44b','#e23b46','#2f6fed','#27c08a','#ffffff','#ffd968'];
+  const wrap=document.createElement('div'); wrap.className='confetti';
+  for(let i=0;i<48;i++){
+    const p=document.createElement('i');
+    p.style.left=(Math.random()*100)+'vw';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration=(1.8+Math.random()*1.8)+'s';
+    p.style.animationDelay=(Math.random()*.5)+'s';
+    if(Math.random()<.5) p.style.borderRadius='50%';
+    wrap.appendChild(p);
+  }
+  document.body.appendChild(wrap);
+  setTimeout(()=>wrap.remove(), 4600);
+}
+function loadVoices(){ if('speechSynthesis' in window) voices=speechSynthesis.getVoices(); }
+if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged=loadVoices; }
+function pickVoice(){
+  return voices.find(v=>/en[-_]?US/i.test(v.lang)) || voices.find(v=>/^en/i.test(v.lang)) || null;
+}
+const FEM_HINT=/(female|woman|samantha|victoria|zira|susan|karen|moira|tessa|fiona|serena|allison|\bava\b|joanna|salli|kimberly|\bamy\b|emma|nicky|aria|jenny|sonia|google us english)/i;
+const MALE_HINT=/(\bmale\b|\bman\b|daniel|david|\balex\b|fred|\btom\b|\bmark\b|aaron|arthur|george|oliver|rishi|\bguy\b|brian|matthew|\bryan\b|\beric\b)/i;
+function genderedVoice(gender){
+  const en=voices.filter(v=>/^en/i.test(v.lang));
+  let v=null;
+  if(gender==='female') v=en.find(x=>FEM_HINT.test(x.name)) || en.find(x=>!MALE_HINT.test(x.name));
+  else                  v=en.find(x=>MALE_HINT.test(x.name)) || en.find(x=>!FEM_HINT.test(x.name));
+  return v || pickVoice();
+}
+function speak(text, opts={}){
+  return new Promise(resolve=>{
+    if(!soundOn || !('speechSynthesis' in window)){ setTimeout(resolve, Math.min(3200,800+text.length*42)); return; }
+    try{
+      speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      let v=null, pitch=1;
+      if(opts.role==='police'){ v=genderedVoice('male'); pitch=.78; }
+      else if(opts.gender==='female'){ v=genderedVoice('female'); pitch=1.28; }
+      else if(opts.gender==='male'){ v=genderedVoice('male'); pitch=.85; }
+      else v=pickVoice();
+      if(v) u.voice=v; u.lang=(v&&v.lang)||'en-US';
+      u.rate=.86; u.pitch=pitch; let done=false;
+      const fin=()=>{ if(!done){done=true; resolve();} };
+      u.onend=fin; u.onerror=fin; speechSynthesis.speak(u);
+      setTimeout(fin, 1200+text.length*120);
+    }catch(e){ resolve(); }
+  });
+}
+
+/* ===== flow ===== */
+function startGame(){
+  generateStages(); cur=0; score=0; escapedCount=0;
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('game').classList.remove('hidden');
+  siren();
+  playStage();
+}
+
+function setTalker(tag, emoji){
+  document.getElementById('speaker').textContent=tag;
+  document.getElementById('talker').textContent=emoji;
+}
+function setBubble(text){
+  const b=document.getElementById('bubble'); b.textContent=text;
+  b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+}
+function appendClue(i){
+  const li=document.createElement('li');
+  li.innerHTML=`<span class="ic">${CLUE_ICONS[i]}</span><span>${stages[cur].description[i]}</span>`;
+  document.getElementById('clueList').appendChild(li);
+}
+
+async function playStage(){
+  const token=++dialogueToken;
+  const st=stages[cur];
+  wrongThisStage=0; locked=false;
+  document.getElementById('stagePill').textContent=`CASE ${cur+1}/10`;
+  document.getElementById('progBar').style.width=`${(cur/10)*100}%`;
+  document.getElementById('scoreTxt').textContent=`⭐ ${score}`;
+  document.getElementById('prompt').classList.add('hidden');
+  document.getElementById('chances').classList.add('hidden');
+  document.getElementById('board').classList.add('hidden');
+  const ovEl=document.getElementById('overlay'); ovEl.classList.add('hidden'); ovEl.classList.remove('gameover');
+  const notepad=document.getElementById('notepad');
+  notepad.classList.add('hidden');
+  document.getElementById('clueList').innerHTML='';
+  document.getElementById('scene').classList.add('centered');
+
+  const wEmoji = WITNESS_EMOJI(st.witnessGender);
+
+  // --- Q&A, centered ---
+  setTalker('Witness', wEmoji);
+  setBubble(`I saw ${st.obj}!`);
+  await speak(`I saw ${st.obj}!`, {gender:st.witnessGender});
+  if(token!==dialogueToken) return; await wait(240);
+
+  setTalker('Police', POLICE_EMOJI(st.policeGender));
+  setBubble(`What does ${st.subj} look like?`);
+  await speak(`What does ${st.subj} look like?`, {gender:st.policeGender});
+  if(token!==dialogueToken) return; await wait(240);
+
+  // --- description, clues stack into notepad ---
+  document.getElementById('scene').classList.remove('centered');
+  notepad.classList.remove('hidden');
+  notepad.classList.remove('collapsed');   // open while the clues build up
+  setTalker('Witness', wEmoji);
+  for(let i=0;i<st.description.length;i++){
+    if(token!==dialogueToken) return;
+    setBubble(st.description[i]);
+    appendClue(i);
+    await speak(st.description[i], {gender:st.witnessGender});
+    if(token!==dialogueToken) return;
+    await wait(220);
+  }
+  if(token!==dialogueToken) return;
+  setTalker('Detective', DET_EMOJI(st.policeGender));
+  setBubble(`Tap the suspect — ${st.subj}'s on the board!`);
+  showBoard(st);
+}
+
+function showBoard(st){
+  cue();   // sound effect when the "tap the suspect" board appears
+  const board=document.getElementById('board');
+  board.innerHTML='';
+  st.suspects.forEach((s,idx)=>{
+    const card=document.createElement('button');
+    card.className='mug';
+    card.innerHTML=`<span class="num">#${idx+1}</span>${faceSVG(s)}<span class="check">✅</span>`;
+    card.onclick=()=>selectSuspect(idx,card);
+    board.appendChild(card);
+  });
+  board.classList.remove('hidden');
+  document.getElementById('prompt').classList.remove('hidden');
+  document.getElementById('chances').classList.remove('hidden');
+  renderChances();
+  document.getElementById('notepad').classList.add('collapsed');  // fold; expand if unsure
+}
+function renderChances(){
+  const el=document.getElementById('chances');
+  el.innerHTML='<span class="ch-label">🔎 Chances</span>';
+  for(let i=0;i<3;i++){ const d=document.createElement('span'); d.className='dot'+(i<wrongThisStage?' lost':''); el.appendChild(d); }
+}
+
+function selectSuspect(idx, el){
+  if(locked) return;
+  const st=stages[cur];
+  if(idx===st.answerIdx){
+    locked=true; chime();
+    el.classList.add('correct');
+    document.querySelectorAll('.mug').forEach(m=>{ if(m!==el) m.classList.add('dim'); });
+    const earned = 3 - wrongThisStage;          // first try 3⭐, 1 miss 2⭐, 2 misses 1⭐
+    score += earned;
+    document.getElementById('scoreTxt').textContent=`⭐ ${score}`;
+    setTimeout(()=>showResult(st, earned), 650);
+  }else{
+    wrongThisStage++;
+    renderChances();
+    el.classList.add('shake','wrong');
+    if(wrongThisStage>=3){ suspectEscapes(st); return; }   // 3 strikes → suspect wins
+    buzz();
+    const left=3-wrongThisStage;
+    setTalker('Detective', DET_EMOJI(st.policeGender));
+    setBubble(`Not ${st.subj==='he'?'him':'her'}! ${left} ${left===1?'chance':'chances'} left${left===1?'!':'…'}`);
+    setTimeout(()=>el.classList.remove('shake'),450);
+  }
+}
+
+const TAUNTS=["Ha ha! Too slow, detective!","You'll never catch me!","Catch me if you can!","So long, detective!","Nice try, detective!"];
+
+function suspectEscapes(st){
+  locked=true; escapedCount++;
+  womp();
+  // reveal who the real suspect was (so students learn from it)
+  document.querySelectorAll('.mug').forEach((m,i)=>{ m.classList.add(i===st.answerIdx?'correct':'dim'); });
+  setTalker('Detective', DET_EMOJI(st.policeGender));
+  setBubble(`Oh no! ${st.P==='He'?'He':'She'} got away…`);
+  if(escapedCount>=3) setTimeout(()=>showGameOver(st), 1100);   // 3 escapes → game over
+  else setTimeout(()=>showEscape(st), 1100);
+}
+
+function showEscape(st){
+  const taunt=TAUNTS[Math.floor(Math.random()*TAUNTS.length)];
+  const ov=document.getElementById('overlay');
+  ov.classList.remove('hidden');
+  ov.innerHTML=`
+    <div class="result-big fail">😈 Escaped!</div>
+    <div class="arrest escape go">
+      <div class="laugh">🤣</div>
+      <div class="perp">${faceSVG(st.suspects[st.answerIdx])}</div>
+      <div class="dust">💨</div>
+    </div>
+    <div class="result-sub">"${taunt}"</div>
+    <button class="btn btn-next" onclick="nextStage()">${cur<9?'Next case ➜':'See results 🏆'}</button>`;
+  speak(taunt, {gender:st.gender});   // the suspect mocks you in their own voice
+}
+
+const BOSS_TAUNTS=["Three escapes! The city is mine now! 😈","You're off the case, detective!","The masterminds always win!","Better hang up that badge!"];
+
+function showGameOver(st){
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  gameOverSound();
+  const taunt=BOSS_TAUNTS[Math.floor(Math.random()*BOSS_TAUNTS.length)];
+  const caught=(cur+1)-escapedCount;
+  const ov=document.getElementById('overlay');
+  ov.classList.remove('hidden'); ov.classList.add('gameover');
+  ov.innerHTML=`
+    <div class="stamp">Case Failed</div>
+    <div class="final-emoji">🚨</div>
+    <div class="result-big fail" style="font-size:clamp(38px,9.5vw,68px)">GAME OVER</div>
+    <div class="result-sub">3 suspects escaped — the chief pulled you off the case.</div>
+    <div class="result-sub" style="color:#ff7a59">"${taunt}"</div>
+    <div class="final-score" style="font-size:clamp(24px,6.5vw,38px)">🟢 ${caught} caught &nbsp;·&nbsp; 🔴 ${escapedCount} escaped</div>
+    <button class="btn btn-next" onclick="restart()">🔁 Try again</button>`;
+  setTimeout(()=>speak(taunt,{gender:st.gender}), 900);
+}
+
+function toggleNotepad(){ document.getElementById('notepad').classList.toggle('collapsed'); }
+
+function showResult(st, earned){
+  handcuff();
+  const meter = '⭐'.repeat(earned) + `<span class="star-empty">${'☆'.repeat(3-earned)}</span>`;
+  const note = earned===3 ? 'First try! 🎯 +3 stars'
+             : earned===2 ? 'Got it on the 2nd try · +2 stars'
+             : 'Caught just in time · +1 star';
+  const ov=document.getElementById('overlay');
+  ov.classList.remove('hidden');
+  ov.innerHTML=`
+    <div class="result-big">🎉 Gotcha!</div>
+    <div class="arrest go">
+      <div class="perp">${faceSVG(st.suspects[st.answerIdx])}</div>
+      <div class="car">🚔</div>
+    </div>
+    <div class="case-stars">${meter}</div>
+    <div class="result-sub">${note}</div>
+    <button class="btn btn-next" onclick="nextStage()">${cur<9?'Next case ➜':'See results 🏆'}</button>`;
+}
+
+function nextStage(){
+  cur++;
+  if(cur>=10){ showFinal(); return; }
+  playStage();
+}
+
+function showFinal(){
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  document.getElementById('progBar').style.width='100%';
+  fanfare();
+  launchConfetti();
+  const stars = score>=27?'⭐⭐⭐' : score>=18?'⭐⭐' : score>=1?'⭐':'·';
+  const msg = score>=27?'Master Detective!' : score>=18?'Sharp eyes & ears!' : score>=1?'Good start — try again!':'Listen carefully next time!';
+  const stampTxt = escapedCount===0 ? 'Case Closed' : 'Case Report';
+  const escLine = escapedCount>0 ? `<div class="result-sub" style="color:#ff7a59;margin:-8px 0 14px">🚨 ${escapedCount} suspect${escapedCount>1?'s':''} got away</div>` : '';
+  const ov=document.getElementById('overlay');
+  ov.classList.remove('hidden');
+  ov.innerHTML=`
+    <div class="stamp">${stampTxt}</div>
+    <div class="final-emoji">🏆</div>
+    <div class="stars">${stars}</div>
+    <div class="final-score">${score}<small>/30 ⭐</small></div>
+    <div class="result-sub">${msg}</div>
+    ${escLine}
+    <button class="btn btn-next" onclick="restart()">🔁 Play again</button>`;
+}
+
+function restart(){
+  const ov=document.getElementById('overlay'); ov.classList.add('hidden'); ov.classList.remove('gameover');
+  startGame();
+}
+
+function toggleSound(){
+  soundOn=!soundOn;
+  document.getElementById('soundBtn').textContent= soundOn?'🔊':'🔇';
+  if(!soundOn && 'speechSynthesis' in window) speechSynthesis.cancel();
+}
+</script>
+</body>
+</html>
