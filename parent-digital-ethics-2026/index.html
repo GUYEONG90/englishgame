@@ -31,8 +31,8 @@
   .word{font-size:clamp(30px,3.8vw,70px);font-weight:740;letter-spacing:-.055em;line-height:1.05}
   .tiny{font-size:clamp(14px,1.2vw,22px);color:#7c7c7c;letter-spacing:-.02em}
   .dark .tiny{color:#adadad}
-  .video-wrap{position:relative;width:min(980px,76vw);aspect-ratio:16/9;background:#111;border:1px solid #2f2f2f;box-shadow:0 18px 54px rgba(0,0,0,.28);margin-top:4vh}
-  video{width:100%;height:100%;display:block;background:#000;object-fit:contain}
+  .video-wrap{width:min(980px,76vw);aspect-ratio:16/9;background:#111;border:1px solid #2f2f2f;box-shadow:0 18px 54px rgba(0,0,0,.28);margin-top:4vh}
+  video,iframe{width:100%;height:100%;display:block;background:#000;border:0;object-fit:contain}
   .video-caption{margin-top:2vh;font-size:clamp(14px,1.2vw,22px);color:#aaa}
   .question-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.2vh 3vw;width:min(1400px,88vw);margin-top:6vh}
   .q{border-top:1.4px solid currentColor;padding-top:1.6vh}
@@ -89,8 +89,7 @@
     <h2 class="hero medium">PHONE FREE</h2>
     <p class="sub">먼저 짧은 영상을 보겠습니다.</p>
     <div class="video-wrap">
-      <video id="policyVideo" controls preload="metadata" playsinline></video>
-        <div id="videoLoadStatus" style="position:absolute;inset:0;display:grid;place-items:center;color:#aaa;font-size:clamp(15px,1.25vw,22px);pointer-events:none;">영상 불러오는 중…</div>
+      <iframe id="policyVideoFrame" src="https://drive.google.com/file/d/1kCWRl86qFQEdZcLrh4lWbrdQmeNvzNDn/preview" title="경기도교육청 폰프리 정책 소개 영상" allow="autoplay; fullscreen" allowfullscreen></iframe>
     </div>
     <div class="video-caption">경기도교육청 폰프리 정책 소개 영상</div>
   </section>
@@ -121,27 +120,7 @@
   const progress = document.getElementById('progress');
   const speaker = document.getElementById('speaker');
   const speakerText = document.getElementById('speakerText');
-  const video = document.getElementById('policyVideo');
-  const videoStatus = document.getElementById('videoLoadStatus');
-  const videoChunks = ['video_01.txt', 'video_02.txt', 'video_03.txt', 'video_04.txt', 'video_05.txt', 'video_06.txt'];
-
-  async function loadEmbeddedVideo(){
-    try{
-      const parts = await Promise.all(videoChunks.map(name => fetch(name, {cache:'force-cache'}).then(r => { if(!r.ok) throw new Error(name); return r.text(); })));
-      const b64 = parts.join('');
-      const bin = atob(b64);
-      const bytes = new Uint8Array(bin.length);
-      for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
-      const blob = new Blob([bytes], {type:'video/mp4'});
-      video.src = URL.createObjectURL(blob);
-      video.addEventListener('loadedmetadata', () => { if(videoStatus) videoStatus.style.display='none'; }, {once:true});
-      video.load();
-    }catch(err){
-      if(videoStatus) videoStatus.textContent = '영상을 불러오지 못했습니다. 페이지를 새로고침해 주세요.';
-      console.error(err);
-    }
-  }
-  loadEmbeddedVideo();
+  const video = null;
   let index = 0;
   let notes = false;
 
